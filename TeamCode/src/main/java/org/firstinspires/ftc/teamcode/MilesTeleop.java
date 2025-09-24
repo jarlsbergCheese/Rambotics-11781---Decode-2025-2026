@@ -57,7 +57,7 @@ public class MilesTeleop extends OpMode {
         bottomLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bottomRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
+//To whomever shall be reading this in the near future... i got nothing
     }
 
     // Runs every frame
