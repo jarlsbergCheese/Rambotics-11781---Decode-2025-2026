@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 @TeleOp(name = "miles")
@@ -40,12 +42,22 @@ public class MilesTeleop extends OpMode {
 
     @Override
     public void init() {
-        topLeftMotor = hardwareMap.get(DcMotorEx.class,"Tlmotor");
-        topRightMotor = hardwareMap.get(DcMotorEx.class,"Trmotor");
-        bottomLeftMotor = hardwareMap.get(DcMotorEx.class,"Blmotor");
-        bottomRightMotor = hardwareMap.get(DcMotorEx.class,"Brmotor");
+        topLeftMotor = hardwareMap.get(DcMotorEx.class,"leftFront");
+        topRightMotor = hardwareMap.get(DcMotorEx.class,"rightFront");
+        bottomLeftMotor = hardwareMap.get(DcMotorEx.class,"rightFront");
+        bottomRightMotor = hardwareMap.get(DcMotorEx.class,"rightRear");
 
         gmpad = gamepad1;
+
+        topRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        topLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        topRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bottomLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bottomRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
     }
 
     // Runs every frame
@@ -53,7 +65,7 @@ public class MilesTeleop extends OpMode {
     public void loop() {
 
         x = gmpad.left_stick_x;
-        y = gmpad.left_stick_y;
+        y = -gmpad.left_stick_y;
         rx = gmpad.right_stick_x;
 
         topRightPower = (y-x-rx);
