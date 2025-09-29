@@ -9,6 +9,7 @@ public class tuningAuto extends OpMode {
 
     Drivetrain drivetrain;
 
+    //nowifi
 
     @Override
     public void init() {
