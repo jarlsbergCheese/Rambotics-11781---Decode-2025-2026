@@ -42,7 +42,7 @@ public class Drivetrain {
         bottomLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void gamePadInputs(Gamepad gmpad, float heading)
+    public void gamePadInputs(Gamepad gmpad, double heading)
     {
 
     xt = gmpad.left_stick_x;

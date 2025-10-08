@@ -38,8 +38,8 @@ public class Odometry {
     //190.504
     static final double odoTPR = 2000.0;
     static final double C = 2*Math.PI*16;
-    static final double L = 167;
-    static final double B = 42.382;
+    static final double L = 295;
+    static final double B = 155;
 
     /* Variables to notate the current positions of the robot*/
     public double Xc = 0.0;
@@ -63,9 +63,9 @@ public class Odometry {
 
     // Constructor (You should know that)
     public Odometry(HardwareMap hwMap){
-        odoRight = hwMap.get(DcMotorEx.class, "rightRear");
-        odoLeft = hwMap.get(DcMotorEx.class, "leftRear");
-        odoBack = hwMap.get(DcMotorEx.class, "rightFront");
+        odoRight = hwMap.get(DcMotorEx.class, "bottomRightMotor");
+        odoLeft = hwMap.get(DcMotorEx.class, "topRightMotor");
+        odoBack = hwMap.get(DcMotorEx.class, "topLeftMotor");
     }
 
     /* This is the state function, should be placed in loop. This is a lot of math
