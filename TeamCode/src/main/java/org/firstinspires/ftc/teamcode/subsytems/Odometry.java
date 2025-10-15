@@ -63,7 +63,7 @@ public class Odometry {
 
     // Constructor (You should know that)
     public Odometry(HardwareMap hwMap){
-        odoRight = hwMap.get(DcMotorEx.class, "bottomRightMotor");
+        odoRight = hwMap.get(DcMotorEx.class, "bottomLeftMotor");
         odoLeft = hwMap.get(DcMotorEx.class, "topRightMotor");
         odoBack = hwMap.get(DcMotorEx.class, "topLeftMotor");
     }

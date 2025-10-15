@@ -34,7 +34,7 @@ public class Drivetrain {
         bottomLeftMotor = hwMap.get(DcMotorEx.class, "bottomLeftMotor");
 
         topRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        bottomLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         topRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         topLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

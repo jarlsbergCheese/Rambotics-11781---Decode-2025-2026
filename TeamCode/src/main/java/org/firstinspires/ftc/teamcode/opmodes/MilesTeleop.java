@@ -42,14 +42,14 @@ public class MilesTeleop extends OpMode {
 
     @Override
     public void init() {
-        topLeftMotor = hardwareMap.get(DcMotorEx.class,"leftFront");
-        topRightMotor = hardwareMap.get(DcMotorEx.class,"rightFront");
-        bottomLeftMotor = hardwareMap.get(DcMotorEx.class,"leftRear");
-        bottomRightMotor = hardwareMap.get(DcMotorEx.class,"rightRear");
+        topLeftMotor = hardwareMap.get(DcMotorEx.class,"topLeftMotor");
+        topRightMotor = hardwareMap.get(DcMotorEx.class,"topRightMotor");
+        bottomLeftMotor = hardwareMap.get(DcMotorEx.class,"bottomLeftMotor");
+        bottomRightMotor = hardwareMap.get(DcMotorEx.class,"bottomRightMotor");
 
         gmpad = gamepad1;
 
-        topLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        topRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         bottomLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         topLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
