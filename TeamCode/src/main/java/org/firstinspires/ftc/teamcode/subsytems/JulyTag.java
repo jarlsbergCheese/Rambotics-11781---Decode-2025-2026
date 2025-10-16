@@ -30,9 +30,7 @@ public class JulyTag {
 
     public void update(Gamepad gmpad)
     {
-
         curCode = johnCamera.getDetections().get(0).id;
-
     }
 
 
