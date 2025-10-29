@@ -19,21 +19,16 @@ public class Luncher {
     // IS THERE AN EASIER WAY TO DO THIS PLEASE THIS IS SO JANK
     public boolean justPressedA = false;
     public boolean justPressedX = false;
+    public boolean isJustPressedY = false;
 
-    Luncher(HardwareMap hwMap)
+    public Luncher(HardwareMap hwMap)
     {
-        mainMotor = hwMap.get(DcMotorEx.class, "launchMotor");
+        mainMotor = hwMap.get(DcMotorEx.class, "topLeftMotor");
     }
 
     Timer timer = new Timer();
 
-    TimerTask task = new TimerTask() {
-        @Override
-        public void run() {
-            mainMotor.setPower(0);
-        }
-
-    };
+    TimerTask task;
 
     public void cycle(int num)
     {
@@ -46,7 +41,14 @@ public class Luncher {
 
     public void mainLaunch()
     {
-        mainMotor.setPower(1);
+        mainMotor.setPower(-1);
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                mainMotor.setPower(0);
+                timer.cancel();
+            }
+        };
         timer.schedule(task, 5000);
     }
 
@@ -81,13 +83,14 @@ public class Luncher {
 
     public void gamepadInputs(Gamepad gmpad)
     {
-        if(gmpad.y)
+        if(gmpad.y && !isJustPressedY)
         {
-            mainMotor.setPower(1);
+            mainLaunch();
+            isJustPressedY = true;
         }
-        else
+        if(!gmpad.y && isJustPressedY)
         {
-            mainMotor.setPower(0);
+            isJustPressedY = false;
         }
 
         // Launches a Green ball using the A button
