@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.subsytems;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import java.util.Objects;
 import java.util.Timer;
@@ -12,6 +14,7 @@ import java.util.TimerTask;
 public class Luncher {
 
     public DcMotorEx mainMotor;
+    public Servo launchHolder;
 
     public String curColor = "";
 
@@ -24,9 +27,12 @@ public class Luncher {
     public Luncher(HardwareMap hwMap)
     {
         mainMotor = hwMap.get(DcMotorEx.class, "topLeftMotor");
+        launchHolder = hwMap.get(Servo.class, "launchHolder");
+
+        launchHolder.setPosition(0.3);
     }
 
-    Timer timer = new Timer();
+    Timer timer;
 
     TimerTask task;
 
@@ -39,17 +45,23 @@ public class Luncher {
         }
     }
 
-    public void mainLaunch()
+    public void mainLaunch(double strength, int time)
     {
-        mainMotor.setPower(-1);
+        mainMotor.setPower(-strength);
+        launchHolder.setPosition(0.6);
+
+        timer = new Timer();
         task = new TimerTask() {
             @Override
             public void run() {
                 mainMotor.setPower(0);
+                launchHolder.setPosition(0.3);
                 timer.cancel();
             }
         };
-        timer.schedule(task, 5000);
+        timer.schedule(task, time);
+
+
     }
 
     public void launchGreen()
@@ -57,7 +69,7 @@ public class Luncher {
 
         if(Objects.equals(curColor, "green"))
         {
-            mainLaunch();
+            mainLaunch(1, 5000);
         }
         else
         {
@@ -71,7 +83,7 @@ public class Luncher {
     {
         if(Objects.equals(curColor, "purple"))
         {
-            mainLaunch();
+            mainLaunch(1, 5000);
         }
         else
         {
@@ -85,7 +97,7 @@ public class Luncher {
     {
         if(gmpad.y && !isJustPressedY)
         {
-            mainLaunch();
+            mainLaunch(1,5000);
             isJustPressedY = true;
         }
         if(!gmpad.y && isJustPressedY)
