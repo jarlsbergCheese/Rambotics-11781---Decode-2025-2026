@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsytems;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -12,6 +13,10 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 public class JulyTag {
+
+    //limelight :D
+    Limelight3A lemon;
+
 
     // Variable that figures out information from april tags
     private AprilTagProcessor johnCamera;
@@ -30,6 +35,8 @@ public class JulyTag {
                 .setCamera(hwMap.get(WebcamName.class, "Webcam"))
                 .addProcessor(johnCamera)
                 .build();
+
+        lemon = hwMap.get(Limelight3A.class, "limelight");
     }
 
     public void update(Gamepad gmpad)

@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsytems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
+import java.sql.Time;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,6 +20,10 @@ public class Luncher {
     public Servo launchHolder;
 
     public String curColor = "";
+    static final double servoRestPosition = 0.6;
+    static final double servoHoldPosition = 0.25;
+
+    public int ballQue = 0;
 
 
     // IS THERE AN EASIER WAY TO DO THIS PLEASE THIS IS SO JANK
@@ -26,50 +33,91 @@ public class Luncher {
 
     public Luncher(HardwareMap hwMap)
     {
-        mainMotor = hwMap.get(DcMotorEx.class, "topLeftMotor");
-        launchHolder = hwMap.get(Servo.class, "launchHolder");
+        mainMotor = hwMap.get(DcMotorEx.class, "shooter");
+        launchHolder = hwMap.get(Servo.class, "holder");
 
-        launchHolder.setPosition(0.3);
+        launchHolder.setPosition(0.6);
+
+        mainMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    Timer timer;
+    Timer motorTimer;
+    Timer servoHoldTimer;
+    Timer servoRestTimer;
 
-    TimerTask task;
+    class MotorTask extends TimerTask{
+        @Override
+        public void run() {
+            mainMotor.setPower(0);
+        }
+    };
+
+    class ServoRestPosition extends TimerTask{
+        @Override
+        public void run() {
+            launchHolder.setPosition(servoRestPosition);
+        }
+    };
+
+    class ServoHoldPosition extends TimerTask {
+        @Override
+        public void run() {
+            launchHolder.setPosition(servoHoldPosition);
+        }
+    };
+
+
 
     public void cycle(int num)
     {
         for(int i = 1; i < num; i++)
         {
             mainMotor.setPower(0.3);
-            timer.schedule(task, 5000);
+            motorTimer.schedule(new MotorTask(), 5000);
         }
     }
 
     public void mainLaunch(double strength, int time)
     {
-        mainMotor.setPower(-strength);
-        launchHolder.setPosition(0.6);
+        mainMotor.setPower(strength);
 
-        timer = new Timer();
-        task = new TimerTask() {
-            @Override
-            public void run() {
-                mainMotor.setPower(0);
-                launchHolder.setPosition(0.3);
-                timer.cancel();
-            }
-        };
-        timer.schedule(task, time);
+        motorTimer = new Timer();
+        servoHoldTimer = new Timer();
+        servoRestTimer = new Timer();
 
+        motorTimer.schedule(new MotorTask(), time);
+        servoHoldTimer.schedule(new ServoHoldPosition(), 2500);
+        servoRestTimer.schedule(new ServoRestPosition(), time);
 
     }
+
+    public void launchSequence()
+    {
+        mainMotor.setPower(1);
+
+        motorTimer = new Timer();
+        servoHoldTimer = new Timer();
+        servoRestTimer = new Timer();
+
+        motorTimer.schedule(new MotorTask(), 10000);
+        servoRestTimer.schedule(new ServoRestPosition(), 10000);
+
+        launchHolder.setPosition(servoRestPosition);
+
+        for(int x = 0; x < ballQue; x++)
+        {
+            servoRestTimer.schedule(new ServoRestPosition(), 3250 + x*1500);
+            servoHoldTimer.schedule(new ServoHoldPosition(), 2500 + x*1500);
+        }
+    }
+
 
     public void launchGreen()
     {
 
         if(Objects.equals(curColor, "green"))
         {
-            mainLaunch(1, 5000);
+            mainLaunch(1, 1000);
         }
         else
         {
@@ -92,12 +140,11 @@ public class Luncher {
         }
     }
 
-
     public void gamepadInputs(Gamepad gmpad)
     {
         if(gmpad.y && !isJustPressedY)
         {
-            mainLaunch(1,5000);
+            launchSequence();
             isJustPressedY = true;
         }
         if(!gmpad.y && isJustPressedY)
@@ -105,11 +152,12 @@ public class Luncher {
             isJustPressedY = false;
         }
 
-        // Launches a Green ball using the A button
+        //
         if(gmpad.a && !justPressedA)
         {
             justPressedA = true;
-            launchGreen();
+            ballQue += 1;
+
         }
         if(!gmpad.a && justPressedA){
             justPressedA = false;
@@ -119,7 +167,8 @@ public class Luncher {
         if(gmpad.x && !justPressedX)
         {
             justPressedX = true;
-            launchPurple();
+
+
         }
         if(!gmpad.x && justPressedX){
             justPressedX = false;
