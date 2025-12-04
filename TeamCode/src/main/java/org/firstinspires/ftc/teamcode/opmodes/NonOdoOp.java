@@ -4,24 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.JulyTag;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
 import org.firstinspires.ftc.teamcode.subsytems.Odometry;
-import org.firstinspires.ftc.teamcode.subsytems.Pathfinder;
 
-import java.nio.file.Path;
-
-@TeleOp(name="SWISS NEVER MISS")
-public class tuningAuto extends OpMode {
-
+@TeleOp(name = "NoODO?")
+public class NonOdoOp extends OpMode
+{
     Drivetrain drivetrain;
+    Odometry odo;
     JulyTag camera;
     Luncher lunch;
-    Pathfinder path;
-    Odometry odo;
 
     DcMotorEx intake;
 
@@ -29,12 +24,9 @@ public class tuningAuto extends OpMode {
     public void init()
     {
         drivetrain = new Drivetrain(hardwareMap);
-        lunch = new Luncher(hardwareMap);
-        path = new Pathfinder();
         odo = new Odometry(hardwareMap);
+        lunch = new Luncher(hardwareMap);
         //camera = new JulyTag(hardwareMap);
-
-
 
         odo.resetEncoders();
 
@@ -47,21 +39,13 @@ public class tuningAuto extends OpMode {
     @Override
     public void loop()
     {
-        drivetrain.gamePadInputs(gamepad1, odo.cur0);
+        drivetrain.gamePadInputs(gamepad1, 0);
         odo.gamepadInputs(gamepad1);
         odo.updateCurPos();
         lunch.gamepadInputs(gamepad1);
         //camera.update(gamepad1);
 
-        telemetry.addData("Rotation", odo.cur0);
-
-        telemetry.addData("curX", odo.curX);
-        telemetry.addData("curY", odo.curY);
-
-
-
-        telemetry.addData("RotationBased", path.curThetaBase);
-
+        telemetry.addData("Rotation", Math.toDegrees(odo.cur0));
 
         telemetry.addData("ballque", lunch.ballQue);
         telemetry.addData("launched", lunch.launchedBalls);
@@ -78,4 +62,6 @@ public class tuningAuto extends OpMode {
         }
 
     }
+
+
 }

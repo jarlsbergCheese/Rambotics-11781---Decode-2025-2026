@@ -29,5 +29,15 @@ public class luncherTest extends OpMode {
 
         lunch.gamepadInputs(gamepad1);
 
+        telemetry.addData("readyToLaunch", lunch.readyToLaunch);
+        telemetry.addData("ballque", lunch.ballQue);
+        telemetry.addData("launched", lunch.launchedBalls);
+        telemetry.addData("launching??", lunch.launching);
+
+
+
+        telemetry.addData("YYYY", gamepad1.y);
+
+
     }
 }

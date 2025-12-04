@@ -18,12 +18,17 @@ public class Luncher {
 
     public DcMotorEx mainMotor;
     public Servo launchHolder;
+    public DcMotorEx intake;
 
     public String curColor = "";
     static final double servoRestPosition = 0.6;
     static final double servoHoldPosition = 0.25;
 
     public int ballQue = 0;
+    public int launchedBalls = 0;
+
+    public boolean readyToLaunch = true;
+    public boolean launching = false;
 
 
     // IS THERE AN EASIER WAY TO DO THIS PLEASE THIS IS SO JANK
@@ -35,10 +40,13 @@ public class Luncher {
     {
         mainMotor = hwMap.get(DcMotorEx.class, "shooter");
         launchHolder = hwMap.get(Servo.class, "holder");
+        intake = hwMap.get(DcMotorEx.class, "intake");
 
         launchHolder.setPosition(0.6);
 
         mainMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
     }
 
     Timer motorTimer;
@@ -49,20 +57,34 @@ public class Luncher {
         @Override
         public void run() {
             mainMotor.setPower(0);
+            launching = false;
+            ballQue = 0;
+            intake.setPower(0);
         }
     };
 
     class ServoRestPosition extends TimerTask{
         @Override
-        public void run() {
+        public void run()
+        {
+            readyToLaunch = true;
+
             launchHolder.setPosition(servoRestPosition);
+
         }
     };
 
     class ServoHoldPosition extends TimerTask {
         @Override
-        public void run() {
+        public void run()
+        {
+            readyToLaunch = false;
+
+            servoRestTimer = new Timer();
+
             launchHolder.setPosition(servoHoldPosition);
+            servoRestTimer.schedule(new ServoRestPosition(), 1000);
+
         }
     };
 
@@ -80,14 +102,15 @@ public class Luncher {
     public void mainLaunch(double strength, int time)
     {
         mainMotor.setPower(strength);
+        intake.setPower(0.5);
+        launching = true;
 
         motorTimer = new Timer();
         servoHoldTimer = new Timer();
         servoRestTimer = new Timer();
 
         motorTimer.schedule(new MotorTask(), time);
-        servoHoldTimer.schedule(new ServoHoldPosition(), 2500);
-        servoRestTimer.schedule(new ServoRestPosition(), time);
+        servoHoldTimer.schedule(new ServoHoldPosition(), 1000);
 
     }
 
@@ -99,15 +122,23 @@ public class Luncher {
         servoHoldTimer = new Timer();
         servoRestTimer = new Timer();
 
-        motorTimer.schedule(new MotorTask(), 10000);
-        servoRestTimer.schedule(new ServoRestPosition(), 10000);
+        motorTimer.schedule(new MotorTask(), 2600*ballQue);
+        servoRestTimer.schedule(new ServoRestPosition(), 2600*ballQue);
 
         launchHolder.setPosition(servoRestPosition);
+        readyToLaunch = true;
 
-        for(int x = 0; x < ballQue; x++)
+        launchedBalls = 0;
+        launching = true;
+
+        while(launching)
         {
-            servoRestTimer.schedule(new ServoRestPosition(), 3250 + x*1500);
-            servoHoldTimer.schedule(new ServoHoldPosition(), 2500 + x*1500);
+            if(ballQue > launchedBalls && readyToLaunch) {
+                    launchHolder.setPosition(servoRestPosition);
+                    servoHoldTimer.schedule(new ServoHoldPosition(), 1750);
+                    readyToLaunch = false;
+                    launchedBalls += 1;
+            }
         }
     }
 
@@ -144,7 +175,12 @@ public class Luncher {
     {
         if(gmpad.y && !isJustPressedY)
         {
+            if(ballQue == 0)
+            {
+                ballQue += 1;
+            }
             launchSequence();
+            //mainLaunch(1,10000);
             isJustPressedY = true;
         }
         if(!gmpad.y && isJustPressedY)
