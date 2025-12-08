@@ -41,8 +41,8 @@ public class Odometry {
     //190.5044
     static final double odoTPR = 2000.0;
     static final double C = 2*Math.PI*16;
-    static final double L = 295.7;
-    static final double B = 76.111;
+    static final double L = 345.7;
+    static final double B = 32.82;
 
     /* Variables to notate the current positions of the robot*/
     public double Xc = 0.0;
