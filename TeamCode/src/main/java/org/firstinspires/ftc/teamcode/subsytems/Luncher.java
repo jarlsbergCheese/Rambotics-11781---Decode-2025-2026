@@ -19,6 +19,9 @@ public class Luncher {
     public DcMotorEx mainMotor;
     public Servo launchHolder;
 
+    boolean launching;
+    boolean readyToLaunch;
+
     public String curColor = "";
     static final double servoRestPosition = 0.6;
     static final double servoHoldPosition = 0.25;
@@ -41,6 +44,7 @@ public class Luncher {
         mainMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+
     Timer motorTimer;
     Timer servoHoldTimer;
     Timer servoRestTimer;
@@ -51,7 +55,6 @@ public class Luncher {
             mainMotor.setPower(0);
             launching = false;
             ballQue = 0;
-            intake.setPower(0);
         }
     };
 
@@ -63,13 +66,6 @@ public class Luncher {
 
             launchHolder.setPosition(servoRestPosition);
 
-        }
-    };
-
-    class ServoRestPosition extends TimerTask{
-        @Override
-        public void run() {
-            launchHolder.setPosition(servoRestPosition);
         }
     };
 

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.ftccommon.internal.manualcontrol.responses.ParentHub;
 import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.JulyTag;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
@@ -19,6 +20,9 @@ public class tuningAuto extends OpMode {
     Drivetrain drivetrain;
     JulyTag camera;
     DcMotorEx intake;
+    Luncher lunch;
+    Odometry odo;
+    Pathfinder path;
 
     // caleb was here
 
