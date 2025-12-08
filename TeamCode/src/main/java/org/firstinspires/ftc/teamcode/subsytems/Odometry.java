@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsytems;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -35,7 +36,9 @@ public class Odometry {
     *
     * */
 
-    //190.504
+
+
+    //190.5044
     static final double odoTPR = 2000.0;
     static final double C = 2*Math.PI*16;
     static final double L = 295.7;
@@ -44,7 +47,7 @@ public class Odometry {
     /* Variables to notate the current positions of the robot*/
     public double Xc = 0.0;
     public double Xp = 0.0;
-    public double Theta0 = 0.0;
+    public double theta = 0.0;
 
     public double deltaX = 0.0;
     public double deltaY = 0.0;
@@ -90,17 +93,16 @@ public class Odometry {
         Cn3 = C*(odoBack.getCurrentPosition()/odoTPR) - prevCn3;
 
         Xc = ((Cn1+Cn2)/2);
-        Theta0 = Math.toRadians(cur0);
-        cur0 = Math.toDegrees((Cn1-Cn2)/L);
-        Xp = (Cn3 - (B*Math.toRadians(cur0)));
+        theta = Math.toDegrees((Cn1-Cn2)/L);
+        Xp = (Cn3 - (B*Math.toRadians(theta)));
 
         // These Theta values have to be in radians (PLEASE HELP)
-        deltaX = -(Xc*Math.cos(Math.toRadians(cur0)) - Xp*Math.sin(Math.toRadians(cur0)));
-        deltaY = (Xc*Math.sin(Math.toRadians(cur0)) + Xp*Math.cos(Math.toRadians(cur0)));
+        deltaX = -(Xc*Math.cos(Math.toRadians(theta)) - Xp*Math.sin(Math.toRadians(theta)));
+        deltaY = (Xc*Math.sin(Math.toRadians(theta)) + Xp*Math.cos(Math.toRadians(theta)));
 
         curX += deltaX;
         curY += deltaY;
-        cur0 += cur0;
+        cur0 += theta;
 
         prevCn1 = Cn1;
         prevCn2 = Cn2;
@@ -112,6 +114,11 @@ public class Odometry {
 
         if(gmpad.dpad_right){
             resetEncoders();
+        }
+        if(gmpad.dpad_left){
+            curX = 0;
+            curY = 0;
+            cur0 = 0;
         }
 
     }
