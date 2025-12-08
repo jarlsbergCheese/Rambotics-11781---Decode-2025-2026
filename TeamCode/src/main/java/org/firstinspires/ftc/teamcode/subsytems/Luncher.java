@@ -49,6 +49,20 @@ public class Luncher {
         @Override
         public void run() {
             mainMotor.setPower(0);
+            launching = false;
+            ballQue = 0;
+            intake.setPower(0);
+        }
+    };
+
+    class ServoRestPosition extends TimerTask{
+        @Override
+        public void run()
+        {
+            readyToLaunch = true;
+
+            launchHolder.setPosition(servoRestPosition);
+
         }
     };
 

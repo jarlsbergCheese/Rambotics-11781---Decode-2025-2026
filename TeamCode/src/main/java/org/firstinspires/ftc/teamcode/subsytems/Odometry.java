@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsytems;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -35,7 +36,9 @@ public class Odometry {
     *
     * */
 
-    //190.504
+
+
+    //190.5044
     static final double odoTPR = 2000.0;
     static final double C = 2*Math.PI*16;
     static final double L = 345.7;
@@ -44,7 +47,12 @@ public class Odometry {
     /* Variables to notate the current positions of the robot*/
     public double Xc = 0.0;
     public double Xp = 0.0;
-    public double Theta0 = 0.0;
+    public double theta = 0.0;
+
+    public double deltaX = 0.0;
+    public double deltaY = 0.0;
+    public double delta0 = 0.0;
+
 
     public double curX = 0.0;
     public double curY = 0.0;
@@ -60,12 +68,18 @@ public class Odometry {
     public double Cn2 = 0.0;
     public double Cn3 = 0.0;
 
+    public double prevCn1 = 0.0;
+    public double prevCn2 = 0.0;
+    public double prevCn3 = 0.0;
+
+
+
 
     // Constructor (You should know that)
     public Odometry(HardwareMap hwMap){
-        odoRight = hwMap.get(DcMotorEx.class, "bottomLeftMotor");
-        odoLeft = hwMap.get(DcMotorEx.class, "topRightMotor");
-        odoBack = hwMap.get(DcMotorEx.class, "topLeftMotor");
+        odoRight = hwMap.get(DcMotorEx.class, "topRightMotor");
+        odoLeft = hwMap.get(DcMotorEx.class, "topLeftMotor");
+        odoBack = hwMap.get(DcMotorEx.class, "bottomLeftMotor");
     }
 
     /* This is the state function, should be placed in loop. This is a lot of math
@@ -74,23 +88,37 @@ public class Odometry {
 
     public void updateCurPos(){
 
-        Cn1 = C*(odoRight.getCurrentPosition()/odoTPR);
-        Cn2 = C*(-odoLeft.getCurrentPosition()/odoTPR);
-        Cn3 = C*(odoBack.getCurrentPosition()/odoTPR);
+        Cn1 = C*(odoRight.getCurrentPosition()/odoTPR) - prevCn1;
+        Cn2 = C*(-odoLeft.getCurrentPosition()/odoTPR) - prevCn2;
+        Cn3 = C*(odoBack.getCurrentPosition()/odoTPR) - prevCn3;
 
         Xc = ((Cn1+Cn2)/2);
-        Theta0 = cur0;
-        cur0 = ((Cn1-Cn2)/L);
-        Xp = (Cn3 - (B*cur0));
+        theta = Math.toDegrees((Cn1-Cn2)/L);
+        Xp = (Cn3 - (B*Math.toRadians(theta)));
 
-        curX = (Xc*Math.cos(Theta0) - Xp*Math.sin(Theta0));
-        curY = (Xc*Math.sin(Theta0) + Xp*Math.cos(Theta0));
+        // These Theta values have to be in radians (PLEASE HELP)
+        deltaX = -(Xc*Math.cos(Math.toRadians(theta)) - Xp*Math.sin(Math.toRadians(theta)));
+        deltaY = (Xc*Math.sin(Math.toRadians(theta)) + Xp*Math.cos(Math.toRadians(theta)));
+
+        curX += deltaX;
+        curY += deltaY;
+        cur0 += theta;
+
+        prevCn1 = Cn1;
+        prevCn2 = Cn2;
+        prevCn3 = Cn3;
+
     }
 
     public void gamepadInputs(Gamepad gmpad){
 
         if(gmpad.dpad_right){
             resetEncoders();
+        }
+        if(gmpad.dpad_left){
+            curX = 0;
+            curY = 0;
+            cur0 = 0;
         }
 
     }

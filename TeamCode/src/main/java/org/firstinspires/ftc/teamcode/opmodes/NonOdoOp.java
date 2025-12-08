@@ -9,29 +9,25 @@ import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.JulyTag;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
 import org.firstinspires.ftc.teamcode.subsytems.Odometry;
-import org.firstinspires.ftc.teamcode.subsytems.Pathfinder;
 
-import java.nio.file.Path;
-
-@TeleOp(name="SWISS NEVER MISS")
-public class tuningAuto extends OpMode {
-
+@TeleOp(name = "NoODO?")
+public class NonOdoOp extends OpMode
+{
     Drivetrain drivetrain;
+    Odometry odo;
     JulyTag camera;
-    DcMotorEx intake;
+    Luncher lunch;
 
-    // caleb was here
+    DcMotorEx intake;
 
     @Override
     public void init()
     {
         drivetrain = new Drivetrain(hardwareMap);
-        lunch = new Luncher(hardwareMap);
-        path = new Pathfinder();
         odo = new Odometry(hardwareMap);
-
-
+        lunch = new Luncher(hardwareMap);
         //camera = new JulyTag(hardwareMap);
+
         odo.resetEncoders();
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
@@ -40,19 +36,21 @@ public class tuningAuto extends OpMode {
 
     }
 
-
     @Override
     public void loop()
     {
-
-        drivetrain.gamePadInputs(gamepad1, odo.cur0);
+        drivetrain.gamePadInputs(gamepad1, 0);
         odo.gamepadInputs(gamepad1);
         odo.updateCurPos();
+        lunch.gamepadInputs(gamepad1);
         //camera.update(gamepad1);
 
         telemetry.addData("Rotation", Math.toDegrees(odo.cur0));
+
+        telemetry.addData("ballque", lunch.ballQue);
+        telemetry.addData("launched", lunch.launchedBalls);
+
         //telemetry.addData("current april tag ids: ", camera.curCode);
-        //telemetry.addData("Light on?", );
 
         if(gamepad1.left_trigger > 0)
         {
@@ -64,4 +62,6 @@ public class tuningAuto extends OpMode {
         }
 
     }
+
+
 }
