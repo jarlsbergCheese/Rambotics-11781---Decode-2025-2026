@@ -30,7 +30,7 @@ public class AutoMaybe extends OpMode {
 
         odo.resetEncoders();
 
-        ArrayList<targetDogs> sequance = new ArrayList<>();
+        ArrayList<targetDogs> sequence = new ArrayList<>();
 
         path.targetPositions.add(new targetDogs(0, 0, 90));
 
