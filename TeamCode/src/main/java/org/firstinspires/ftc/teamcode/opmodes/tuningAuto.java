@@ -49,12 +49,32 @@ public class tuningAuto extends OpMode {
     public void loop()
     {
 
-        drivetrain.gamePadInputs(gamepad1, odo.cur0);
+        drivetrain.gamePadInputs(gamepad1, 0);
         odo.gamepadInputs(gamepad1);
         odo.updateCurPos();
+        lunch.gamepadInputs(gamepad1);
         //camera.update(gamepad1);
 
-        telemetry.addData("Rotation", Math.toDegrees(odo.cur0));
+        telemetry.addData("Rotation", odo.cur0);
+        telemetry.addData("theta", odo.theta);
+        telemetry.addData("curX", odo.curX);
+        telemetry.addData("curY", odo.curY);
+
+        telemetry.addData("cn1", Math.toDegrees(odo.Cn1));
+        telemetry.addData("cn2", Math.toDegrees(odo.Cn2));
+        telemetry.addData("cn3", Math.toDegrees(odo.Cn3));
+
+        telemetry.addData("Xc", odo.Xc);
+        telemetry.addData("Xp", odo.Xp);
+
+
+
+        //telemetry.addData("please god no", odo.telemetryExport);
+
+
+
+
+
         //telemetry.addData("current april tag ids: ", camera.curCode);
         //telemetry.addData("Light on?", );
 

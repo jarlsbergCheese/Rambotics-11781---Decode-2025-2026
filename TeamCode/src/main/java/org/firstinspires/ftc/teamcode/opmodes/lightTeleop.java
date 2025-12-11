@@ -12,8 +12,9 @@ public class lightTeleop extends OpMode {
     Lights light;
 
     public void init() {
-        ServoControllerEx controller = hardwareMap.get(ServoControllerEx.class, "Control Hub");
-        light = new Lights(controller, 0);
+        RevBlinkinLedDriver light = hardwareMap.get(RevBlinkinLedDriver.class, "light");
+        light.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+
     }
     public void loop() {
 

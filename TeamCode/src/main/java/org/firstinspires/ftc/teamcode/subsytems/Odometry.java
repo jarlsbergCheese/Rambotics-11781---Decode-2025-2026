@@ -36,8 +36,6 @@ public class Odometry {
     *
     * */
 
-
-
     //190.5044
     static final double odoTPR = 2000.0;
     static final double C = 2*Math.PI*16;
@@ -68,6 +66,9 @@ public class Odometry {
     public double Cn2 = 0.0;
     public double Cn3 = 0.0;
 
+    public double TCn1 = 0.0;
+    public double TCn2 = 0.0;
+
     public double prevCn1 = 0.0;
     public double prevCn2 = 0.0;
     public double prevCn3 = 0.0;
@@ -86,14 +87,37 @@ public class Odometry {
     on Odometry, a good resource to use to understand the basics of Odometry is
     this game manual: https://gm0.org/en/latest/docs/software/concepts/odometry.html */
 
-    public void updateCurPos(){
+    public void updateCurPos()
+    {
+
+        Cn1 = C*(odoRight.getCurrentPosition()/odoTPR);
+        Cn2 = C*(-odoLeft.getCurrentPosition()/odoTPR);
+        Cn3 = C*(odoBack.getCurrentPosition()/odoTPR);
+
+        Xc = ((Cn1+Cn2)/2);
+        theta = Math.toDegrees((Cn2-Cn1)/L);
+        Xp = (Cn3 - (B*Math.toRadians(theta)));
+
+        // These Theta values have to be in radians (PLEASE HELP)
+        deltaX = -(Xc*Math.cos(Math.toRadians(theta)) - Xp*Math.sin(Math.toRadians(theta)));
+        deltaY = (Xc*Math.sin(Math.toRadians(theta)) + Xp*Math.cos(Math.toRadians(theta)));
+
+        curX = deltaX;
+        curY = deltaY;
+        cur0 = theta;
+
+
+    }
+
+    public void newUpdateCurPos()
+    {
 
         Cn1 = C*(odoRight.getCurrentPosition()/odoTPR) - prevCn1;
         Cn2 = C*(-odoLeft.getCurrentPosition()/odoTPR) - prevCn2;
         Cn3 = C*(odoBack.getCurrentPosition()/odoTPR) - prevCn3;
 
         Xc = ((Cn1+Cn2)/2);
-        theta = Math.toDegrees((Cn1-Cn2)/L);
+        theta = Math.toDegrees((Cn2-Cn1)/L);
         Xp = (Cn3 - (B*Math.toRadians(theta)));
 
         // These Theta values have to be in radians (PLEASE HELP)
@@ -104,17 +128,14 @@ public class Odometry {
         curY += deltaY;
         cur0 += theta;
 
-        prevCn1 = Cn1;
-        prevCn2 = Cn2;
-        prevCn3 = Cn3;
+        prevCn1 = C*(odoRight.getCurrentPosition()/odoTPR);
+        prevCn2 = C*(-odoLeft.getCurrentPosition()/odoTPR);
+        prevCn3 = C*(odoBack.getCurrentPosition()/odoTPR);
 
     }
 
     public void gamepadInputs(Gamepad gmpad){
 
-        if(gmpad.dpad_right){
-            resetEncoders();
-        }
         if(gmpad.dpad_left){
             curX = 0;
             curY = 0;

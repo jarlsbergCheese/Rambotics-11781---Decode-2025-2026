@@ -19,8 +19,9 @@ public class Luncher {
     public DcMotorEx mainMotor;
     public Servo launchHolder;
 
-    boolean launching;
-    boolean readyToLaunch;
+    public boolean launching;
+    public boolean readyToLaunch;
+    public boolean launchedBalls;
 
     public String curColor = "";
     static final double servoRestPosition = 0.6;
@@ -72,6 +73,7 @@ public class Luncher {
     class ServoHoldPosition extends TimerTask {
         @Override
         public void run() {
+
             launchHolder.setPosition(servoHoldPosition);
         }
     };
@@ -109,8 +111,8 @@ public class Luncher {
         servoHoldTimer = new Timer();
         servoRestTimer = new Timer();
 
-        motorTimer.schedule(new MotorTask(), 10000);
-        servoRestTimer.schedule(new ServoRestPosition(), 10000);
+        motorTimer.schedule(new MotorTask(), ballQue*3500);
+        servoRestTimer.schedule(new ServoRestPosition(), ballQue*3500);
 
         launchHolder.setPosition(servoRestPosition);
 
@@ -154,6 +156,10 @@ public class Luncher {
     {
         if(gmpad.y && !isJustPressedY)
         {
+            if(ballQue <= 0)
+            {
+                ballQue += 1;
+            }
             launchSequence();
             isJustPressedY = true;
         }
