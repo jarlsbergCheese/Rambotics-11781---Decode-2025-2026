@@ -1,20 +1,20 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ServoControllerEx;
-import org.firstinspires.ftc.teamcode.subsytems.Lights;
 
 @TeleOp(name="Light teleop")
 public class lightTeleop extends OpMode {
 
-    Lights light;
+    RevBlinkinLedDriver led;
+    RevBlinkinLedDriver.BlinkinPattern pattern = RevBlinkinLedDriver.BlinkinPattern.HOT_PINK;
 
     public void init() {
-        ServoControllerEx controller = hardwareMap.get(ServoControllerEx.class, "Control Hub");
-        light = new Lights(controller, 0);
+        led = hardwareMap.get(RevBlinkinLedDriver.class, "RevBlinkinLedDriver");
+        led.setPattern(pattern);
     }
     public void loop() {
-        telemetry.addData("Pattern:", light.pattern);
+        telemetry.addData("Pattern: ", pattern);
     }
 }
