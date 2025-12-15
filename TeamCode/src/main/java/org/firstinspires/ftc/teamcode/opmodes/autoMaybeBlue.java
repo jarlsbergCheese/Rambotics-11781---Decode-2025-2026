@@ -6,14 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
 import org.firstinspires.ftc.teamcode.subsytems.Odometry;
-
-import java.util.ArrayList;
-
 import org.firstinspires.ftc.teamcode.subsytems.Pathfinder;
 import org.firstinspires.ftc.teamcode.subsytems.targetDogs;
 
-@Autonomous(name = "...")
-public class AutoMaybe extends OpMode {
+import java.util.ArrayList;
+
+@Autonomous(name= "AutoBasicBlue")
+public class autoMaybeBlue extends OpMode {
 
     Drivetrain drivetrain;
     Odometry odo;
@@ -34,7 +33,7 @@ public class AutoMaybe extends OpMode {
 
         path.targetPositions.add(new targetDogs(-750, 0, 0));
         path.targetPositions.add(new targetDogs(-750, 0, 0, "launch3"));
-        path.targetPositions.add(new targetDogs(-750, 500, 0));
+        path.targetPositions.add(new targetDogs(-750, -500, 0));
 
     }
 
@@ -66,4 +65,6 @@ public class AutoMaybe extends OpMode {
         odo.updateCurPos();
 
     }
+
+
 }

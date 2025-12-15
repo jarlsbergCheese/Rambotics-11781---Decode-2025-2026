@@ -49,7 +49,7 @@ public class tuningAuto extends OpMode {
     public void loop()
     {
 
-        drivetrain.gamePadInputs(gamepad1, 0);
+        drivetrain.gamePadInputs(gamepad1, odo.cur0);
         odo.gamepadInputs(gamepad1);
         odo.updateCurPos();
         lunch.gamepadInputs(gamepad1);
@@ -78,9 +78,13 @@ public class tuningAuto extends OpMode {
         //telemetry.addData("current april tag ids: ", camera.curCode);
         //telemetry.addData("Light on?", );
 
-        if(gamepad1.left_trigger > 0)
+        if(gamepad1.left_trigger > 0.0)
         {
             intake.setPower(gamepad1.left_trigger);
+        }
+        else if(gamepad1.right_trigger > 0.0)
+        {
+            intake.setPower(-gamepad1.right_trigger);
         }
         else
         {

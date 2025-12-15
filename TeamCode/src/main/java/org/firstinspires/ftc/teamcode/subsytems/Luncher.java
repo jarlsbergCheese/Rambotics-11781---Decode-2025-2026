@@ -18,10 +18,11 @@ public class Luncher {
 
     public DcMotorEx mainMotor;
     public Servo launchHolder;
+    public DcMotorEx intake;
 
     public boolean launching;
     public boolean readyToLaunch;
-    public boolean launchedBalls;
+    public int launchedBalls;
 
     public String curColor = "";
     static final double servoRestPosition = 0.6;
@@ -39,6 +40,7 @@ public class Luncher {
     {
         mainMotor = hwMap.get(DcMotorEx.class, "shooter");
         launchHolder = hwMap.get(Servo.class, "holder");
+        intake = hwMap.get(DcMotorEx.class, "intake");
 
         launchHolder.setPosition(0.6);
 
@@ -50,10 +52,13 @@ public class Luncher {
     Timer servoHoldTimer;
     Timer servoRestTimer;
 
+    Timer intakeVTimer;
+
     class MotorTask extends TimerTask{
         @Override
         public void run() {
             mainMotor.setPower(0);
+            intake.setPower(0);
             launching = false;
             ballQue = 0;
         }
@@ -66,15 +71,23 @@ public class Luncher {
             readyToLaunch = true;
 
             launchHolder.setPosition(servoRestPosition);
-
+            intake.setPower(-0.35);
         }
     };
 
     class ServoHoldPosition extends TimerTask {
         @Override
         public void run() {
-
             launchHolder.setPosition(servoHoldPosition);
+            intake.setPower(0);
+        }
+    };
+
+    class intakeV extends TimerTask {
+        @Override
+        public void run() {
+            intake.setPower(0);
+
         }
     };
 
@@ -107,21 +120,62 @@ public class Luncher {
     {
         mainMotor.setPower(1);
 
+        //intakeVTimer = new Timer();
+
+        if(ballQue>1){
+            intake.setPower(-0.35);
+        }
+
         motorTimer = new Timer();
         servoHoldTimer = new Timer();
         servoRestTimer = new Timer();
 
-        motorTimer.schedule(new MotorTask(), ballQue*3500);
-        servoRestTimer.schedule(new ServoRestPosition(), ballQue*3500);
+        motorTimer.schedule(new MotorTask(), (ballQue+1)*3500);
+        servoRestTimer.schedule(new ServoRestPosition(), (ballQue+1)*3500);
 
         launchHolder.setPosition(servoRestPosition);
 
         for(int x = 0; x < ballQue; x++)
         {
-            servoRestTimer.schedule(new ServoRestPosition(), 3250 + x*1500);
-            servoHoldTimer.schedule(new ServoHoldPosition(), 2500 + x*1500);
+            servoRestTimer.schedule(new ServoRestPosition(), 3250 + x*2500);
+
+            //intake.setPower(-0.35);
+            //intakeVTimer.schedule(new intakeV(), 1500);
+
+            servoHoldTimer.schedule(new ServoHoldPosition(), 2500 + x*2500);
         }
+
+        intake.setPower(0);
     }
+
+    public void launchSequence(boolean isAuto)
+    {
+        mainMotor.setPower(1);
+
+        if(ballQue > 1)
+        {
+            intake.setPower(-0.60);
+        }
+
+        motorTimer = new Timer();
+        servoHoldTimer = new Timer();
+        servoRestTimer = new Timer();
+
+        motorTimer.schedule(new MotorTask(), ballQue*3500 + 3250);
+        servoRestTimer.schedule(new ServoRestPosition(), ballQue*3500 + 3250);
+
+        launchHolder.setPosition(servoRestPosition);
+
+        for(int x = 0; x < ballQue; x++)
+        {
+            servoRestTimer.schedule(new ServoRestPosition(), 3250 + x*3000);
+            servoHoldTimer.schedule(new ServoHoldPosition(), 2500 + x*3000);
+        }
+
+        intake.setPower(0);
+    }
+
+
 
 
     public void launchGreen()

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ServoControllerEx;
@@ -12,11 +11,10 @@ public class lightTeleop extends OpMode {
     Lights light;
 
     public void init() {
-        RevBlinkinLedDriver light = hardwareMap.get(RevBlinkinLedDriver.class, "light");
-        light.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-
+        ServoControllerEx controller = hardwareMap.get(ServoControllerEx.class, "lights");
+        light = new Lights(controller, 0);
     }
     public void loop() {
-
+        telemetry.addData("Pattern:", light.pattern);
     }
 }

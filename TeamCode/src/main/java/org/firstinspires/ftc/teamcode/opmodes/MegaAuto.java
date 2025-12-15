@@ -1,26 +1,23 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
 import org.firstinspires.ftc.teamcode.subsytems.Odometry;
-
-import java.util.ArrayList;
-
 import org.firstinspires.ftc.teamcode.subsytems.Pathfinder;
 import org.firstinspires.ftc.teamcode.subsytems.targetDogs;
 
-@Autonomous(name = "...")
-public class AutoMaybe extends OpMode {
+@Autonomous(name="JAKE")
+public class MegaAuto extends OpMode {
 
     Drivetrain drivetrain;
     Odometry odo;
     Pathfinder path;
     Luncher luncher;
-
-    ArrayList<targetDogs> sequence;
 
     @Override
     public void init() {
@@ -32,14 +29,16 @@ public class AutoMaybe extends OpMode {
 
         odo.resetEncoders();
 
-        path.targetPositions.add(new targetDogs(-750, 0, 0));
-        path.targetPositions.add(new targetDogs(-750, 0, 0, "launch3"));
-        path.targetPositions.add(new targetDogs(-750, 500, 0));
+        path.targetPositions.add(new targetDogs(-650, 200, 45));
+        path.targetPositions.add(new targetDogs(-650, 200, 45, "launch3"));
+        path.targetPositions.add(new targetDogs(-650,750, 0, "intakeStart" ));
+        path.targetPositions.add(new targetDogs(50, 750, 0));
+        path.targetPositions.add(new targetDogs(-650, 200, 45, "intakeEnd"));
+        path.targetPositions.add(new targetDogs(-650, 200, 45, "launch3"));
+        path.targetPositions.add(new targetDogs(-400, 400, 45));
+
 
     }
-
-
-    //Change the Y value a couple more mm when the comp comes because the drip buckets
 
     @Override
     public void loop() {
@@ -48,22 +47,11 @@ public class AutoMaybe extends OpMode {
         drivetrain.autoSetter(path.x,path.y,path.theta);
         drivetrain.coordinateBasedState(odo.cur0);
 
+        odo.newUpdateCurPos();
 
-        telemetry.addData("x", path.x);
-        telemetry.addData("y", path.y);
+        telemetry.addData("rotation", odo.cur0);
+        telemetry.addData("tarTheta", path.tarRotation);
 
-        telemetry.addData("what", "-----------------");
-
-        telemetry.addData("curX", odo.curX);
-        telemetry.addData("curY", odo.curY);
-        telemetry.addData("thetaBase", path.curThetaBase);
-        telemetry.addData("theta", odo.cur0);
-
-
-
-
-
-        odo.updateCurPos();
 
     }
 }

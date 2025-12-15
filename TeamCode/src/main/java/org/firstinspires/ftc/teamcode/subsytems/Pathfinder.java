@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsytems;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.teamcode.subsytems.targetDogs;
 
 import java.util.ArrayList;
@@ -10,6 +13,7 @@ import java.util.TimerTask;
 public class Pathfinder
 {
     Luncher luncher;
+    DcMotorEx intake;
 
     public double tarPosX;
     public double tarPosY;
@@ -45,12 +49,12 @@ public class Pathfinder
 
     public Pathfinder()
     {
-
     }
 
-    public Pathfinder(Luncher luncherp)
+    public Pathfinder(Luncher luncherp, HardwareMap hwmap)
     {
         luncher = luncherp;
+        intake = hwmap.get(DcMotorEx.class, "intake");
     }
 
 
@@ -63,7 +67,7 @@ public class Pathfinder
 
     public void runToTargetPos(double curX, double curY, double curTheta, double tarX, double tarY, double tarTheta)
     {
-        if(Math.abs(curX - tarX) <= buffer && Math.abs(curY - tarY) <= buffer && Math.abs(tarTheta-curThetaBase) <= 20)
+        if(Math.abs(tarX - curX) <= buffer && Math.abs(tarY - curY) <= buffer && Math.abs(tarTheta-curThetaBase) <= 10)
         {
             isAtTarPos = true;
 
@@ -77,7 +81,7 @@ public class Pathfinder
         else{
             isAtTarPos = false;
 
-            if(Math.abs(curX - tarX) <= buffer)
+            if(Math.abs(tarX - curX) <= buffer)
             {
                 x = 0;
             }
@@ -99,7 +103,7 @@ public class Pathfinder
             }
 
 
-            if(Math.abs(curY - tarY) <= buffer)
+            if(Math.abs(tarY - curY) <= buffer)
             {
                 y = 0;
             }
@@ -120,38 +124,56 @@ public class Pathfinder
                 y = -0.25;
             }
 
-            if(Math.abs(tarTheta-curThetaBase) <= 20)
+            if(Math.abs(tarTheta-curThetaBase) <= 10)
             {
                 theta = 0;
             }
             else if(curThetaBase > tarTheta+90)
             {
-                theta = -0.25;
+                theta = -0.5;
             }
             else if(curThetaBase > tarTheta)
             {
-                theta = -0.5;
+                theta = -0.25;
             }
             else if(curThetaBase < tarTheta-90)
             {
-                theta = 0.25;
+                theta = 0.5;
             }
             else if(curThetaBase < tarTheta)
             {
-                theta = 0.5;
+                theta = 0.25;
             }
 
 
         }
     }
 
-    public void autoLaunch(Luncher lunch)
+    public void autoLaunch(Luncher lunch, int ballQue)
     {
         eventTimer = new Timer();
 
+        luncher.ballQue = ballQue;
+
         runningEvent = true;
-        lunch.mainLaunch(1,2100);
-        eventTimer.schedule(new eventTask(), 2100);
+        lunch.launchSequence(true);
+        eventTimer.schedule(new eventTask(), ballQue*3500 + 3500);
+    }
+
+    public void autoIntake(boolean inwards)
+    {
+
+        eventTimer = new Timer();
+
+        if(inwards)
+        {
+            intake.setPower(-0.75);
+        }
+        if(!inwards)
+        {
+            intake.setPower(0.75);
+        }
+        eventTimer.schedule(new eventTask(), 1000);
 
     }
 
@@ -168,6 +190,7 @@ public class Pathfinder
         if(!completed && !runningEvent)
         {
             runToTargetPos(curX, curY, curTheta, targets.get(count).x, targets.get(count).y, targets.get(count).theta);
+            tarRotation = targets.get(count).theta;
         }
 
         if(!Objects.equals(targets.get(count).eventType, "") && !runningEvent && !completedEvent)
@@ -180,7 +203,27 @@ public class Pathfinder
             switch (targets.get(count).eventType)
             {
                 case "launch":
-                    autoLaunch(luncher);
+                    autoLaunch(luncher, 1);
+                    completedEvent = true;
+
+                case "launch1":
+                    autoLaunch(luncher, 1);
+                    completedEvent = true;
+
+                case "launch2":
+                    autoLaunch(luncher, 2);
+                    completedEvent = true;
+
+                case "launch3":
+                    autoLaunch(luncher, 3);
+                    completedEvent = true;
+
+                case "intakeStart":
+                    intake.setPower(0.4);
+                    completedEvent = true;
+
+                case "intakeEnd":
+                    intake.setPower(0);
                     completedEvent = true;
 
                 case "":

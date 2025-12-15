@@ -39,8 +39,8 @@ public class Odometry {
     //190.5044
     static final double odoTPR = 2000.0;
     static final double C = 2*Math.PI*16;
-    static final double L = 345.7;
-    static final double B = 32.82;
+    static final double L = 295.7;
+    static final double B = 73.75;
 
     /* Variables to notate the current positions of the robot*/
     public double Xc = 0.0;
@@ -95,16 +95,16 @@ public class Odometry {
         Cn3 = C*(odoBack.getCurrentPosition()/odoTPR);
 
         Xc = ((Cn1+Cn2)/2);
-        theta = Math.toDegrees((Cn2-Cn1)/L);
-        Xp = (Cn3 - (B*Math.toRadians(theta)));
+        cur0 = (Cn1-Cn2)/L;
+        Xp = (Cn3 - (B*cur0));
 
         // These Theta values have to be in radians (PLEASE HELP)
-        deltaX = -(Xc*Math.cos(Math.toRadians(theta)) - Xp*Math.sin(Math.toRadians(theta)));
-        deltaY = (Xc*Math.sin(Math.toRadians(theta)) + Xp*Math.cos(Math.toRadians(theta)));
+        deltaX = -(Xc*Math.cos(Math.toRadians(cur0)) - Xp*Math.sin(Math.toRadians(cur0)));
+        deltaY = (Xc*Math.sin(Math.toRadians(cur0)) + Xp*Math.cos(Math.toRadians(cur0)));
 
         curX = deltaX;
         curY = deltaY;
-        cur0 = theta;
+        cur0 = Math.toDegrees(cur0);
 
 
     }
@@ -137,6 +137,7 @@ public class Odometry {
     public void gamepadInputs(Gamepad gmpad){
 
         if(gmpad.dpad_left){
+            resetEncoders();
             curX = 0;
             curY = 0;
             cur0 = 0;
