@@ -25,8 +25,8 @@ public class Luncher {
     public int launchedBalls;
 
     public String curColor = "";
-    static final double servoRestPosition = 0.6;
-    static final double servoHoldPosition = 0.25;
+    static final double servoRestPosition = 1;
+    static final double servoHoldPosition = 0.67;
 
     public int ballQue = 0;
 
@@ -35,6 +35,7 @@ public class Luncher {
     public boolean justPressedA = false;
     public boolean justPressedX = false;
     public boolean isJustPressedY = false;
+    public boolean isJustPressedB = false;
 
     public Luncher(HardwareMap hwMap)
     {
@@ -42,7 +43,7 @@ public class Luncher {
         launchHolder = hwMap.get(Servo.class, "holder");
         intake = hwMap.get(DcMotorEx.class, "intake");
 
-        launchHolder.setPosition(0.6);
+        launchHolder.setPosition(servoRestPosition);
 
         mainMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
@@ -91,8 +92,6 @@ public class Luncher {
         }
     };
 
-
-
     public void cycle(int num)
     {
         for(int i = 1; i < num; i++)
@@ -130,19 +129,19 @@ public class Luncher {
         servoHoldTimer = new Timer();
         servoRestTimer = new Timer();
 
-        motorTimer.schedule(new MotorTask(), (ballQue+1)*3500);
-        servoRestTimer.schedule(new ServoRestPosition(), (ballQue+1)*3500);
+        motorTimer.schedule(new MotorTask(), (ballQue+1)*4500);
+        servoRestTimer.schedule(new ServoRestPosition(), (ballQue+1)*4500);
 
         launchHolder.setPosition(servoRestPosition);
 
         for(int x = 0; x < ballQue; x++)
         {
-            servoRestTimer.schedule(new ServoRestPosition(), 3250 + x*2500);
+            servoRestTimer.schedule(new ServoRestPosition(), 4250 + x*2500);
 
             //intake.setPower(-0.35);
             //intakeVTimer.schedule(new intakeV(), 1500);
 
-            servoHoldTimer.schedule(new ServoHoldPosition(), 2500 + x*2500);
+            servoHoldTimer.schedule(new ServoHoldPosition(), 3500 + x*2500);
         }
 
         intake.setPower(0);
@@ -192,7 +191,7 @@ public class Luncher {
         }
 
     }
-
+//bazinga
     public void launchPurple()
     {
         if(Objects.equals(curColor, "purple"))
@@ -221,6 +220,23 @@ public class Luncher {
         {
             isJustPressedY = false;
         }
+
+        if(gmpad.b && !isJustPressedB)
+        {
+            if(ballQue <= 0)
+            {
+                ballQue += 1;
+            }
+            launchSequence();
+            isJustPressedB = true;
+        }
+        if(!gmpad.b && isJustPressedB)
+        {
+            isJustPressedB = false;
+        }
+
+ //mm
+
 
         //
         if(gmpad.a && !justPressedA)
