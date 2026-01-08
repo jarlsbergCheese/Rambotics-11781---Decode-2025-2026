@@ -23,6 +23,15 @@ public class Pathfinder
     public double y;
     public double theta = 0.0;
 
+    public double p_control;
+    public final double p_tune = (1.0/10000.0);
+
+    public double i_control;
+    public double i_tune;
+
+    public double d_control;
+    public double d_tune;
+
     public double curThetaBase;
 
     public double buffer = 50;
@@ -81,68 +90,59 @@ public class Pathfinder
         else{
             isAtTarPos = false;
 
+            p_control = (tarX - curX) * p_tune;
+
             if(Math.abs(tarX - curX) <= buffer)
             {
                 x = 0;
             }
+
+            /*
             else if(curX < tarX-100)
             {
                 x = 0.5;
             }
-            else if(curX < tarX)
+
+             */
+            else
             {
-                x = 0.25;
+                x = 1*p_control;
             }
+
+            /*
             else if(curX > tarX+100)
             {
                 x = -0.5;
             }
-            else if(curX > tarX)
-            {
-                x = -0.25;
-            }
 
+             */
+
+            p_control = (tarY - curY)*p_tune;
 
             if(Math.abs(tarY - curY) <= buffer)
             {
                 y = 0;
             }
-            else if(curY < tarY-100)
+            else
             {
-                y = 0.5;
+                y = 1*p_tune;
             }
-            else if(curY < tarY)
-            {
-                y = 0.25;
-            }
-            else if(curY > tarY+100)
-            {
-                y = -0.5;
-            }
-            else if(curY > tarY)
-            {
-                y = -0.25;
-            }
+
+            p_control = (tarTheta-curThetaBase)*p_tune;
 
             if(Math.abs(tarTheta-curThetaBase) <= 10)
             {
                 theta = 0;
             }
-            else if(curThetaBase > tarTheta+90)
+            /* else if(curThetaBase > tarTheta+90)
             {
                 theta = -0.5;
             }
-            else if(curThetaBase > tarTheta)
+
+             */
+            else
             {
-                theta = -0.25;
-            }
-            else if(curThetaBase < tarTheta-90)
-            {
-                theta = 0.5;
-            }
-            else if(curThetaBase < tarTheta)
-            {
-                theta = 0.25;
+                theta = 1*p_tune;
             }
 
 
@@ -229,6 +229,7 @@ public class Pathfinder
                 case "":
                     break;
             }
+
         }
 
 
