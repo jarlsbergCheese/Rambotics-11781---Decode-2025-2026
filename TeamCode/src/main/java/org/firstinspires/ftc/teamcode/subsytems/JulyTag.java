@@ -23,7 +23,10 @@ public class JulyTag {
 
     private VisionPortal bert;
 
+    public AprilTagDetection curDetection;
+
     public int curCode = 0;
+    public double curYaw = 0;
 
     public JulyTag(HardwareMap hwMap)
     {
@@ -41,9 +44,13 @@ public class JulyTag {
 
     public void update(Gamepad gmpad)
     {
+
+        curDetection = johnCamera.getDetections().get(0);
+
         if (!johnCamera.getDetections().isEmpty())
         {
-            curCode = johnCamera.getDetections().get(0).id;
+            curCode = curDetection.id;
+            curYaw = curDetection.ftcPose.yaw;
         }
 
     }

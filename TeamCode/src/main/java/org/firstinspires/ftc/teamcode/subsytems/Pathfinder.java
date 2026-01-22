@@ -23,8 +23,12 @@ public class Pathfinder
     public double y;
     public double theta = 0.0;
 
-    public double p_control;
-    public final double p_tune = (1.0/10000.0);
+    public double p_controlX;
+    public double p_controlY;
+    public double p_controlTheta;
+
+
+    public final double p_tune = (1.0/1000.0);
 
     public double i_control;
     public double i_tune;
@@ -76,7 +80,7 @@ public class Pathfinder
 
     public void runToTargetPos(double curX, double curY, double curTheta, double tarX, double tarY, double tarTheta)
     {
-        if(Math.abs(tarX - curX) <= buffer && Math.abs(tarY - curY) <= buffer && Math.abs(tarTheta-curThetaBase) <= 10)
+        if(Math.abs(tarX - curX) <= buffer && Math.abs(tarY - curY) <= buffer && Math.abs(tarTheta-curThetaBase) <= buffer)
         {
             isAtTarPos = true;
 
@@ -90,34 +94,18 @@ public class Pathfinder
         else{
             isAtTarPos = false;
 
-            p_control = (tarX - curX) * p_tune;
+            p_controlX = (tarX - curX) * p_tune;
 
-            if(Math.abs(tarX - curX) <= buffer)
-            {
+            if(Math.abs(tarX - curX) <= 100) {
                 x = 0;
             }
-
-            /*
-            else if(curX < tarX-100)
-            {
-                x = 0.5;
-            }
-
-             */
             else
             {
-                x = 1*p_control;
+                x = 1*p_controlX+0.1;
             }
 
-            /*
-            else if(curX > tarX+100)
-            {
-                x = -0.5;
-            }
 
-             */
-
-            p_control = (tarY - curY)*p_tune;
+            p_controlY = (tarY - curY)*p_tune;
 
             if(Math.abs(tarY - curY) <= buffer)
             {
@@ -125,10 +113,10 @@ public class Pathfinder
             }
             else
             {
-                y = 1*p_tune;
+                y = 1*p_controlY+0.1;
             }
 
-            p_control = (tarTheta-curThetaBase)*p_tune;
+            p_controlTheta = (tarTheta-curThetaBase)*p_tune;
 
             if(Math.abs(tarTheta-curThetaBase) <= 10)
             {
@@ -142,7 +130,7 @@ public class Pathfinder
              */
             else
             {
-                theta = 1*p_tune;
+                theta = -1*p_controlTheta+0.1;
             }
 
 
@@ -156,8 +144,8 @@ public class Pathfinder
         luncher.ballQue = ballQue;
 
         runningEvent = true;
-        lunch.launchSequence(true);
-        eventTimer.schedule(new eventTask(), ballQue*3500 + 3500);
+        lunch.rpmLaunch(false);
+        eventTimer.schedule(new eventTask(), ballQue*2000 + 3000);
     }
 
     public void autoIntake(boolean inwards)

@@ -1,18 +1,15 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.competition;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.ftccommon.internal.manualcontrol.responses.ParentHub;
 import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.JulyTag;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
 import org.firstinspires.ftc.teamcode.subsytems.Odometry;
 import org.firstinspires.ftc.teamcode.subsytems.Pathfinder;
-
-import java.nio.file.Path;
 
 @TeleOp(name="SWISS NEVER MISS")
 public class tuningAuto extends OpMode {
@@ -33,6 +30,7 @@ public class tuningAuto extends OpMode {
         lunch = new Luncher(hardwareMap);
         path = new Pathfinder();
         odo = new Odometry(hardwareMap);
+        //camera = new JulyTag(hardwareMap);
 
 
         //camera = new JulyTag(hardwareMap);
@@ -53,8 +51,9 @@ public class tuningAuto extends OpMode {
         odo.gamepadInputs(gamepad1);
         odo.updateCurPos();
         lunch.gamepadInputs(gamepad1);
-        //camera.update(gamepad1);
+       // camera.update(gamepad1);
 
+        /*
         telemetry.addData("Rotation", odo.cur0);
         telemetry.addData("theta", odo.theta);
         telemetry.addData("curX", odo.curX);
@@ -66,6 +65,11 @@ public class tuningAuto extends OpMode {
 
         telemetry.addData("Xc", odo.Xc);
         telemetry.addData("Xp", odo.Xp);
+        */
+        telemetry.addData("Velocity", lunch.mainMotor.getVelocity());
+        telemetry.addData("ballque", lunch.ballQue);
+        //telemetry.addData("YAW", camera.curYaw);
+
 
 
 
@@ -78,15 +82,15 @@ public class tuningAuto extends OpMode {
         //telemetry.addData("current april tag ids: ", camera.curCode);
         //telemetry.addData("Light on?", );
 
-        if(gamepad1.left_trigger > 0.0)
+        if(gamepad1.left_trigger > 0.0 && !lunch.launching)
         {
             intake.setPower(gamepad1.left_trigger);
         }
-        else if(gamepad1.right_trigger > 0.0)
+        else if(gamepad1.right_trigger > 0.0 && !lunch.launching)
         {
             intake.setPower(-gamepad1.right_trigger);
         }
-        else
+        else if(!lunch.launching)
         {
             intake.setPower(0);
         }

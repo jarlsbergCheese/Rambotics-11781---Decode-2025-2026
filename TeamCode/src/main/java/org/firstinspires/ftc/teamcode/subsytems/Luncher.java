@@ -20,6 +20,16 @@ public class Luncher {
     public Servo launchHolder;
     public DcMotorEx intake;
 
+    public double curRPM = 0.0;
+    public double lastRPM = 0.0;
+
+
+    public final double[] farRange = {1475, 1500};
+    public final double[] closeRange = {1225, 1250};
+
+    //true = far, false = close
+    public boolean curLaunchDistance = false;
+
     public boolean launching;
     public boolean readyToLaunch;
     public int launchedBalls;
@@ -53,7 +63,7 @@ public class Luncher {
     Timer servoHoldTimer;
     Timer servoRestTimer;
 
-    Timer intakeVTimer;
+    Timer bufferTimer;
 
     class MotorTask extends TimerTask{
         @Override
@@ -65,14 +75,28 @@ public class Luncher {
         }
     };
 
+    class Buffer extends TimerTask{
+        @Override
+        public void run()
+        {
+            intake.setPower(0);
+
+            ballQue -= 1;
+            readyToLaunch = true;
+        }
+    };
+
     class ServoRestPosition extends TimerTask{
         @Override
         public void run()
         {
-            readyToLaunch = true;
+            bufferTimer = new Timer();
 
             launchHolder.setPosition(servoRestPosition);
-            intake.setPower(-0.35);
+
+            intake.setPower(0.6);
+
+            bufferTimer.schedule(new Buffer(), 1000);
         }
     };
 
@@ -80,14 +104,18 @@ public class Luncher {
         @Override
         public void run() {
             launchHolder.setPosition(servoHoldPosition);
-            intake.setPower(0);
         }
     };
 
-    class intakeV extends TimerTask {
+    // DEPRECATED VVVV
+    class rpsClock extends TimerTask {
         @Override
         public void run() {
-            intake.setPower(0);
+            lastRPM = (mainMotor.getCurrentPosition()/28.0);
+            if(launching)
+            {
+                updateRPM();
+            }
 
         }
     };
@@ -117,6 +145,9 @@ public class Luncher {
 
     public void launchSequence()
     {
+        //updateRPM();
+
+        //launching = true;
         mainMotor.setPower(1);
 
         //intakeVTimer = new Timer();
@@ -147,9 +178,19 @@ public class Luncher {
         intake.setPower(0);
     }
 
-    public void launchSequence(boolean isAuto)
+    public void launchSequence(boolean isAuto, boolean far)
     {
-        mainMotor.setPower(1);
+        //updateRPM();
+        //launching = true;
+
+        if(far)
+        {
+            mainMotor.setPower(0.90);
+        }
+        else
+        {
+            mainMotor.setPower(0.80);
+        }
 
         if(ballQue > 1)
         {
@@ -160,20 +201,79 @@ public class Luncher {
         servoHoldTimer = new Timer();
         servoRestTimer = new Timer();
 
-        motorTimer.schedule(new MotorTask(), ballQue*3500 + 3250);
-        servoRestTimer.schedule(new ServoRestPosition(), ballQue*3500 + 3250);
+        motorTimer.schedule(new MotorTask(), ballQue*3500 + 4250);
+        servoRestTimer.schedule(new ServoRestPosition(), ballQue*3500 + 4250);
 
         launchHolder.setPosition(servoRestPosition);
 
         for(int x = 0; x < ballQue; x++)
         {
-            servoRestTimer.schedule(new ServoRestPosition(), 3250 + x*3000);
-            servoHoldTimer.schedule(new ServoHoldPosition(), 2500 + x*3000);
+            servoRestTimer.schedule(new ServoRestPosition(), 4250 + x*3000);
+            servoHoldTimer.schedule(new ServoHoldPosition(), 3500 + x*3000);
         }
 
         intake.setPower(0);
     }
 
+    public void rpmLaunch(boolean far)
+    {
+        servoRestTimer = new Timer();
+
+        launching = true;
+        mainMotor.setPower(0.8);
+        readyToLaunch = true;
+        launchHolder.setPosition(servoRestPosition);
+        curLaunchDistance = far;
+
+
+    }
+
+    public void waitingForLaunch()
+    {
+        if(launching) {
+            if (curLaunchDistance) {
+                if (curRPM >= farRange[1]) {
+                    mainMotor.setPower(0);
+                } else {
+                    mainMotor.setPower(1);
+                }
+            } else if (!curLaunchDistance) {
+                if (curRPM >= closeRange[1]) {
+                    mainMotor.setPower(0);
+                } else {
+                    mainMotor.setPower(1);
+                }
+            }
+        }
+        else
+        {
+            mainMotor.setPower(0);
+        }
+
+        if(curLaunchDistance && launching)
+        {
+            if(curRPM > farRange[0] && curRPM < farRange[1] && readyToLaunch)
+            {
+                readyToLaunch = false;
+                launchHolder.setPosition(servoHoldPosition);
+                servoRestTimer.schedule(new ServoRestPosition(), 750);
+            }
+        }
+        else if(!curLaunchDistance && launching)
+        {
+            if(curRPM > closeRange[0] && curRPM < closeRange[1] && readyToLaunch)
+            {
+                readyToLaunch = false;
+                launchHolder.setPosition(servoHoldPosition);
+                servoRestTimer.schedule(new ServoRestPosition(), 750);
+            }
+        }
+
+        if(ballQue <= 0)
+        {
+            launching = false;
+        }
+    }
 
 
 
@@ -207,13 +307,17 @@ public class Luncher {
 
     public void gamepadInputs(Gamepad gmpad)
     {
+        updateRPM();
+        waitingForLaunch();
+
         if(gmpad.y && !isJustPressedY)
         {
             if(ballQue <= 0)
             {
                 ballQue += 1;
             }
-            launchSequence();
+            //launchSequence(false, true);
+            rpmLaunch(true);
             isJustPressedY = true;
         }
         if(!gmpad.y && isJustPressedY)
@@ -227,15 +331,14 @@ public class Luncher {
             {
                 ballQue += 1;
             }
-            launchSequence();
+            //launchSequence(false, false);
+            rpmLaunch(false);
             isJustPressedB = true;
         }
         if(!gmpad.b && isJustPressedB)
         {
             isJustPressedB = false;
         }
-
- //mm
 
 
         //
@@ -253,13 +356,24 @@ public class Luncher {
         if(gmpad.x && !justPressedX)
         {
             justPressedX = true;
-
-
         }
-        if(!gmpad.x && justPressedX){
+        if(!gmpad.x && justPressedX)
+        {
             justPressedX = false;
         }
 
+
+    }
+
+    public void autoLaunching(){
+        updateRPM();
+        waitingForLaunch();
+    }
+
+    public void updateRPM()
+    {
+        //28 is the ticks per revoloution of the motor we are using
+        curRPM = mainMotor.getVelocity();
 
     }
 
