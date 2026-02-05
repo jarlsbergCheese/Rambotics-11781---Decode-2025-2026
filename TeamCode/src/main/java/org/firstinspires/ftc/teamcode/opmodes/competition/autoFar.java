@@ -1,26 +1,24 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.competition;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
 import org.firstinspires.ftc.teamcode.subsytems.Odometry;
-
-import java.util.ArrayList;
-
 import org.firstinspires.ftc.teamcode.subsytems.Pathfinder;
 import org.firstinspires.ftc.teamcode.subsytems.targetDogs;
 
-@Autonomous(name = "houseTest")
-public class AutoMaybe extends OpMode {
+@Autonomous(name="autoFarRed")
+public class autoFar extends OpMode {
 
     Drivetrain drivetrain;
     Odometry odo;
     Pathfinder path;
     Luncher luncher;
-
-    ArrayList<targetDogs> sequence;
+    DcMotorEx intake;
 
     @Override
     public void init() {
@@ -32,31 +30,32 @@ public class AutoMaybe extends OpMode {
 
         odo.resetEncoders();
 
-        path.targetPositions.add(new targetDogs(300, 0, 90, "launch3"));
-        path.targetPositions.add(new targetDogs(300, 300, 90));
-        path.targetPositions.add(new targetDogs(300, 0, 0));
+        path.targetPositions.add(new targetDogs(0, 0, 0, "farLaunch3"));
+        path.targetPositions.add(new targetDogs(500, 500, 0));
 
+
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
     }
-
-
-    //Change the Y value a couple more mm when the comp comes because the drip buckets
 
     @Override
     public void loop() {
-
         path.sequence(path.targetPositions, odo.curX, odo.curY, odo.cur0);
         drivetrain.autoSetter(path.x,path.y,path.theta);
         drivetrain.coordinateBasedState(odo.cur0);
-        odo.newUpdateCurPos();
 
-        telemetry.addData("x", path.x);
-        telemetry.addData("y", path.y);
+        luncher.autoLaunching();
+        odo.updateCurPos();
 
-        telemetry.addData("what", "-----------------");
-
-        telemetry.addData("curX", odo.curX);
-        telemetry.addData("curY", odo.curY);
+        telemetry.addData("targetTheta", path.targetPositions.get(path.count).theta);
         telemetry.addData("thetaBase", path.curThetaBase);
-        telemetry.addData("theta", odo.cur0);
+
+        telemetry.addData("Theta Power", path.theta);
+
+
+        telemetry.addData("thetaDistance", (path.targetPositions.get(path.count).theta)-path.curThetaBase);
+        telemetry.addData("yOffset", (path.targetPositions.get(path.count).y - odo.curY));
+        telemetry.addData("xOffset", (path.targetPositions.get(path.count).x - odo.curX));
     }
+
 }

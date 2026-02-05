@@ -73,10 +73,10 @@ public class Drivetrain {
         bottomLeftPower  /= max;
     }
 
-    topRightMotor.setPower(topRightPower*0.9);
-    topLeftMotor.setPower(topLeftPower*0.9);
-    bottomRightMotor.setPower(bottomRightPower*0.9);
-    bottomLeftMotor.setPower(bottomLeftPower*0.9);
+    topRightMotor.setPower(topRightPower);
+    topLeftMotor.setPower(topLeftPower);
+    bottomRightMotor.setPower(bottomRightPower);
+    bottomLeftMotor.setPower(bottomLeftPower);
 
     }
 
@@ -89,8 +89,8 @@ public class Drivetrain {
     public void coordinateBasedState(double cur0p)
     {
 
-        double Xmov2 = (Xmov * Math.cos(Math.toRadians(cur0p)) - (Ymov * Math.sin(Math.toRadians(cur0p))));
-        double Ymov2 = (Xmov * Math.sin(Math.toRadians(cur0p)) + (Ymov * Math.cos(Math.toRadians(cur0p))));
+        double Xmov2 = (Xmov * Math.cos(Math.toRadians(cur0p)) - (Ymov * Math.sin(Math.toRadians(-cur0p))));
+        double Ymov2 = (Xmov * Math.sin(Math.toRadians(-cur0p)) + (Ymov * Math.cos(Math.toRadians(cur0p))));
 
         //The Y move and the X move are different than gamepad inputs because the odomerty caculates forward as X
 
@@ -99,16 +99,6 @@ public class Drivetrain {
         double leftBackPower = Xmov2-Ymov2+rXmov;
         double rightBackPower = Xmov2+Ymov2-rXmov;
 
-        max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-        max = Math.max(max, Math.abs(leftBackPower));
-        max = Math.max(max, Math.abs(rightBackPower));
-
-        if (max > 1.0) {
-            leftFrontPower  /= max;
-            rightFrontPower /= max;
-            leftBackPower   /= max;
-            rightBackPower  /= max;
-        }
 
             topLeftMotor.setPower(leftFrontPower*0.9);
             topRightMotor.setPower(rightFrontPower*0.9);

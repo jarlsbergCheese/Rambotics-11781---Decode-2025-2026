@@ -14,6 +14,7 @@ public class Pathfinder
 {
     Luncher luncher;
     DcMotorEx intake;
+    DcMotorEx mainMotor;
 
     public double tarPosX;
     public double tarPosY;
@@ -27,6 +28,7 @@ public class Pathfinder
     public double p_controlY;
     public double p_controlTheta;
 
+    public double speedMod = 1.0;
 
     public final double p_tune = (1.0/1000.0);
 
@@ -38,21 +40,30 @@ public class Pathfinder
 
     public double curThetaBase;
 
-    public double buffer = 50;
+    public double buffer = 30;
 
     public boolean isAtTarPos = false;
 
     public ArrayList<targetDogs> targetPositions = new ArrayList<targetDogs>();
     boolean completed = false;
 
-    boolean runningEvent = false;
+    public boolean runningEvent = false;
     boolean completedEvent = false;
 
     Timer eventTimer;
+    Timer intakeTimer;
 
     class eventTask extends TimerTask {
         @Override
         public void run() {
+            runningEvent = false;
+        }
+    };
+
+    class jamTimer extends TimerTask {
+        @Override
+        public void run() {
+            intake.setPower(0);
             runningEvent = false;
         }
     };
@@ -68,6 +79,7 @@ public class Pathfinder
     {
         luncher = luncherp;
         intake = hwmap.get(DcMotorEx.class, "intake");
+        mainMotor = hwmap.get(DcMotorEx.class, "shooter");
     }
 
 
@@ -80,7 +92,7 @@ public class Pathfinder
 
     public void runToTargetPos(double curX, double curY, double curTheta, double tarX, double tarY, double tarTheta)
     {
-        if(Math.abs(tarX - curX) <= buffer && Math.abs(tarY - curY) <= buffer && Math.abs(tarTheta-curThetaBase) <= buffer)
+        if(Math.abs(tarX - curX) <= buffer && Math.abs(tarY - curY) <= buffer && Math.abs(tarTheta-curThetaBase) <= 10)
         {
             isAtTarPos = true;
 
@@ -96,14 +108,21 @@ public class Pathfinder
 
             p_controlX = (tarX - curX) * p_tune;
 
-            if(Math.abs(tarX - curX) <= 100) {
+            if(Math.abs(tarX - curX) <= buffer) {
                 x = 0;
+            }
+            else if(Math.abs(p_controlX) > 0.35)
+            {
+                x = 1*p_controlX*speedMod;
+            }
+            else if(p_controlX > 0)
+            {
+                x = 0.35*speedMod;
             }
             else
             {
-                x = 1*p_controlX+0.1;
+                x = -0.35*speedMod;
             }
-
 
             p_controlY = (tarY - curY)*p_tune;
 
@@ -111,14 +130,21 @@ public class Pathfinder
             {
                 y = 0;
             }
-            else
+            else if (Math.abs(p_controlY) > 0.35)
             {
-                y = 1*p_controlY+0.1;
+                y = 1*p_controlY*speedMod;
+            }
+            else if(p_controlY > 0)
+            {
+                y = 0.35*speedMod;
+            }
+            else{
+                y = -0.35*speedMod;
             }
 
-            p_controlTheta = (tarTheta-curThetaBase)*p_tune;
+            p_controlTheta = (tarTheta-curThetaBase)*p_tune*10;
 
-            if(Math.abs(tarTheta-curThetaBase) <= 10)
+            if(Math.abs(tarTheta-curThetaBase) <= 2)
             {
                 theta = 0;
             }
@@ -130,7 +156,7 @@ public class Pathfinder
              */
             else
             {
-                theta = -1*p_controlTheta+0.1;
+                theta = -1*p_controlTheta*speedMod;
             }
 
 
@@ -145,24 +171,45 @@ public class Pathfinder
 
         runningEvent = true;
         lunch.rpmLaunch(false);
-        eventTimer.schedule(new eventTask(), ballQue*2000 + 3000);
+        eventTimer.schedule(new eventTask(), (6000));
     }
 
-    public void autoIntake(boolean inwards)
+    public void autoLaunch(Luncher lunch, int ballQue, boolean far)
     {
-
         eventTimer = new Timer();
 
-        if(inwards)
-        {
-            intake.setPower(-0.75);
-        }
-        if(!inwards)
-        {
-            intake.setPower(0.75);
-        }
-        eventTimer.schedule(new eventTask(), 1000);
+        luncher.ballQue = ballQue;
 
+        runningEvent = true;
+        lunch.rpmLaunch(false);
+        eventTimer.schedule(new eventTask(), (6000));
+    }
+
+    public void autoIntakeStart()
+    {
+        runningEvent = true;
+            intake.setPower(0.95);
+        runningEvent = false;
+    }
+    public void autoIntakeEnd()
+    {
+        runningEvent = true;
+        intake.setPower(0);
+        runningEvent = false;
+    }
+
+    public void unJam()
+    {
+        intakeTimer = new Timer();
+
+        intake.setPower(-0.5);
+        intakeTimer.schedule(new jamTimer(), 500);
+    }
+
+    public void intakeEndWait()
+    {
+        intakeTimer = new Timer();
+        intakeTimer.schedule(new jamTimer(), 1000);
     }
 
     public void sequence(ArrayList<targetDogs> targets, double curX, double curY, double curTheta){
@@ -175,12 +222,6 @@ public class Pathfinder
             curThetaBase = curTheta + Math.floor(Math.abs(curTheta) / 360) * 360;
         }
 
-        if(!completed && !runningEvent)
-        {
-            runToTargetPos(curX, curY, curTheta, targets.get(count).x, targets.get(count).y, targets.get(count).theta);
-            tarRotation = targets.get(count).theta;
-        }
-
         if(!Objects.equals(targets.get(count).eventType, "") && !runningEvent && !completedEvent)
         {
             x = 0;
@@ -191,36 +232,72 @@ public class Pathfinder
             switch (targets.get(count).eventType)
             {
                 case "launch":
-                    autoLaunch(luncher, 1);
-                    completedEvent = true;
-
+                    autoLaunch(luncher, 1,false);
+                    break;
                 case "launch1":
-                    autoLaunch(luncher, 1);
-                    completedEvent = true;
-
+                    autoLaunch(luncher, 1,false);
+                    break;
                 case "launch2":
-                    autoLaunch(luncher, 2);
-                    completedEvent = true;
-
+                    autoLaunch(luncher, 2,false);
+                    break;
                 case "launch3":
-                    autoLaunch(luncher, 3);
-                    completedEvent = true;
-
+                    autoLaunch(luncher, 3,false);
+                    break;
+                case "farLaunch3":
+                    autoLaunch(luncher, 3, true);
+                    break;
                 case "intakeStart":
-                    intake.setPower(0.4);
-                    completedEvent = true;
-
+                    autoIntakeStart();
+                    break;
                 case "intakeEnd":
-                    intake.setPower(0);
-                    completedEvent = true;
-
+                    autoIntakeEnd();
+                    break;
+                case "speedChange2":
+                    speedMod = 2;
+                    runningEvent = false;
+                    break;
+                case "speedChange1":
+                    runningEvent = true;
+                    speedMod = 1;
+                    runningEvent = false;
+                    break;
+                case "speedChange0.5":
+                    runningEvent = true;
+                    speedMod = 0.8;
+                    runningEvent = false;
+                    break;
+                case "constantWheelOn":
+                    runningEvent = true;
+                    luncher.constantlySpinning = true;
+                    runningEvent = false;
+                    break;
+                case "constantWheelOff":
+                    runningEvent = true;
+                    luncher.constantlySpinning = false;
+                    runningEvent = false;
+                    break;
+                case "unjam":
+                    runningEvent = true;
+                    unJam();
+                    break;
+                case "wait":
+                    runningEvent = true;
+                    intakeEndWait();
+                    break;
                 case "":
                     break;
             }
 
+            completedEvent = true;
+
+
         }
 
-
+        if(!completed && !runningEvent)
+        {
+            runToTargetPos(curX, curY, curTheta, targets.get(count).x, targets.get(count).y, targets.get(count).theta);
+            tarRotation = targets.get(count).theta;
+        }
 
         if(isAtTarPos && !runningEvent){
             if(count < targets.size() && !completed)

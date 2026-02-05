@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ClassUtil;
 
 import org.firstinspires.ftc.teamcode.subsytems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsytems.Luncher;
@@ -30,10 +31,59 @@ public class autoCloseRed extends OpMode {
 
         odo.resetEncoders();
 
-        path.targetPositions.add(new targetDogs(-1200, 1200, 0));
-        path.targetPositions.add(new targetDogs(-1200, 1200, 0, "launch3"));
+        path.targetPositions.add(new targetDogs(0,0,0, "speedChange2"));
+        path.targetPositions.add(new targetDogs(-500, -500, 47, "constantWheelOn"));
+        path.targetPositions.add(new targetDogs(-500, -500, 47));
+        path.targetPositions.add(new targetDogs(-500, -500, 47, "launch3"));
 
-        path.targetPositions.add(new targetDogs(-1200, -1700, 45));
+        path.targetPositions.add(new targetDogs(-630, -500, 90));
+        path.targetPositions.add(new targetDogs(-630, -500, 90, "speedChange0.5"));
+        path.targetPositions.add(new targetDogs(-630, -500, 90, "intakeStart"));
+        path.targetPositions.add(new targetDogs(-630, 120, 90));
+        path.targetPositions.add(new targetDogs(-630, 120, 90, "intakeEnd"));
+        path.targetPositions.add(new targetDogs(-630, 120, 90, "speedChange2"));
+        path.targetPositions.add(new targetDogs(-630, -500, 90));
+        path.targetPositions.add(new targetDogs(-630, -500, 90, "unjam"));
+        path.targetPositions.add(new targetDogs(-500, -500, 47));
+        path.targetPositions.add(new targetDogs(-500, -500, 47, "launch3"));
+
+
+        path.targetPositions.add(new targetDogs(-975, -500, 90));
+        path.targetPositions.add(new targetDogs(-975, -500, 90, "speedChange0.5"));
+        path.targetPositions.add(new targetDogs(-975, -500, 90, "intakeStart"));
+        path.targetPositions.add(new targetDogs(-975, 225, 90));
+        path.targetPositions.add(new targetDogs(-975, 225, 90, "intakeEnd"));
+        path.targetPositions.add(new targetDogs(-975, 225, 90, "speedChange2"));
+        path.targetPositions.add(new targetDogs(-975, -500, 90));
+        path.targetPositions.add(new targetDogs(-975, -500, 90, "unjam"));
+        path.targetPositions.add(new targetDogs(-500, -500, 45));
+        path.targetPositions.add(new targetDogs(-500, -500, 45, "launch3"));
+
+
+        path.targetPositions.add(new targetDogs(-1475, -500, 90));
+        path.targetPositions.add(new targetDogs(-1475, -500, 90, "speedChange1"));
+        path.targetPositions.add(new targetDogs(-1475, -500, 90, "intakeStart"));
+        path.targetPositions.add(new targetDogs(-1475, 250, 90));
+        path.targetPositions.add(new targetDogs(-1475, -500, 90));
+        path.targetPositions.add(new targetDogs(-1475, -500, 90, "wait"));
+        path.targetPositions.add(new targetDogs(-1475, -500, 90, "unjam"));
+        path.targetPositions.add(new targetDogs(-1475, -500, 90, "speedChange2"));
+        path.targetPositions.add(new targetDogs(-500, -500, 45));
+
+        path.targetPositions.add(new targetDogs(-500, -500, 45, "launch3"));
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -49,14 +99,9 @@ public class autoCloseRed extends OpMode {
         drivetrain.coordinateBasedState(odo.cur0);
 
         luncher.autoLaunching();
-        odo.updateCurPos();
+        odo.newUpdateCurPos();
 
-        telemetry.addData("targetTheta", path.targetPositions.get(path.count).theta);
-        telemetry.addData("thetaBase", path.curThetaBase);
-
-        telemetry.addData("thetaDistance", (path.targetPositions.get(path.count).theta)-path.curThetaBase);
-        telemetry.addData("yOffset", (path.targetPositions.get(path.count).y - odo.curY));
-        telemetry.addData("xOffset", (path.targetPositions.get(path.count).x - odo.curX));
+        telemetry.addData("eventing?", path.runningEvent);
     }
 
 }

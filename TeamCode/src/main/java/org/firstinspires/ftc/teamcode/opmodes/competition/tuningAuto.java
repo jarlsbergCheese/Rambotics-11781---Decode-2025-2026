@@ -49,7 +49,7 @@ public class tuningAuto extends OpMode {
 
         drivetrain.gamePadInputs(gamepad1, odo.cur0);
         odo.gamepadInputs(gamepad1);
-        odo.updateCurPos();
+        odo.newUpdateCurPos();
         lunch.gamepadInputs(gamepad1);
        // camera.update(gamepad1);
 
@@ -66,10 +66,14 @@ public class tuningAuto extends OpMode {
         telemetry.addData("Xc", odo.Xc);
         telemetry.addData("Xp", odo.Xp);
         */
-        telemetry.addData("Velocity", lunch.mainMotor.getVelocity());
         telemetry.addData("ballque", lunch.ballQue);
         //telemetry.addData("YAW", camera.curYaw);
 
+        telemetry.addData("X", odo.curX);
+        telemetry.addData("Y", odo.curY);
+        telemetry.addData("Theta", odo.cur0);
+
+        telemetry.addData("Odo sensor delta: ", odo.Cn1);
 
 
 

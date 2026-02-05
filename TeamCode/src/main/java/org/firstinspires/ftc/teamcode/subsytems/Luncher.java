@@ -23,9 +23,12 @@ public class Luncher {
     public double curRPM = 0.0;
     public double lastRPM = 0.0;
 
+    public double constantRPM = 800;
+    public boolean constantlySpinning = false;
 
-    public final double[] farRange = {1475, 1500};
-    public final double[] closeRange = {1225, 1250};
+
+    public final double[] farRange = {1395, 1415};
+    public final double[] closeRange = {1125, 1150};
 
     //true = far, false = close
     public boolean curLaunchDistance = false;
@@ -225,7 +228,6 @@ public class Luncher {
         launchHolder.setPosition(servoRestPosition);
         curLaunchDistance = far;
 
-
     }
 
     public void waitingForLaunch()
@@ -247,7 +249,16 @@ public class Luncher {
         }
         else
         {
-            mainMotor.setPower(0);
+            if(constantlySpinning) {
+                if (curRPM >= constantRPM) {
+                    mainMotor.setPower(0);
+                } else {
+                    mainMotor.setPower(1);
+                }
+            }
+            else{
+                mainMotor.setPower(0);
+            }
         }
 
         if(curLaunchDistance && launching)
